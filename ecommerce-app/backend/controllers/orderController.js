@@ -3,7 +3,7 @@ import userModel from "../models/userModel.js";
 import Stripe from "stripe";
 
 // global variables
-const currency = "ngn";
+const currency = "usd";
 const deliveryCharge = 10;
 
 // gateway initialize
@@ -101,8 +101,8 @@ const verifyStripe = async (req, res) => {
       await userModel.findByIdAndUpdate(userId, { cartData: {} });
       res.json({ success: true });
     } else {
-        await orderModel.findByIdAndDelete(orderId)
-        res.json({ success: false })
+      await orderModel.findByIdAndDelete(orderId);
+      res.json({ success: false });
     }
   } catch (error) {
     console.log(error);
@@ -130,7 +130,7 @@ const userOrders = async (req, res) => {
     const { userId } = req.body;
 
     const orders = await orderModel.find({ userId });
-    Response.json({ success: true, orders });
+    res.json({ success: true, orders });
   } catch (error) {
     console.log(error);
     res.json({ success: false, message: error.message });

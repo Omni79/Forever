@@ -116,7 +116,7 @@ const ShopContextProvider = (props) => {
       const response = await axios.get(backendUrl + "/api/product/list");
 
       if (response.data.success) {
-        setProducts(response.data.product || []); // Fixed: Ensure products array
+        setProducts(response.data.product || []);
       } else {
         toast.error(response.data.message);
       }
