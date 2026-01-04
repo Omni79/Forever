@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import serverless from "serverless-http";
 
 import connectDB from "./config/mongodb.js";
 import connectCloudinary from "./config/cloudinary.js";
@@ -13,24 +12,39 @@ import orderRouter from "./routes/orderRoute.js";
 
 const app = express();
 
-// connect once (important)
+// Connect to MongoDB and Cloudinary
 connectDB();
 connectCloudinary();
 
-// middlewares
+// Middlewares
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN?.split(',') || '*',
+  credentials: true
+}));
 
-// routes
+// Health check route (IMPORTANT - before other routes)
+app.get("/", (req, res) => {
+  res.json({ message: "Forever Backend API is running" });
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", timestamp: new Date().toISOString() });
+});
+
+// API Routes
 app.use("/api/user", userRouter);
 app.use("/api/product", productRouter);
 app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 
-// health check (VERY IMPORTANT)
-app.get("/api/health", (req, res) => {
-  res.status(200).json({ status: "ok" });
-});
+// For local development only
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 4000;
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
 
-// 👇 EXPORT — do NOT listen
-export default serverless(app);
+// Export for Vercel
+export default app;
